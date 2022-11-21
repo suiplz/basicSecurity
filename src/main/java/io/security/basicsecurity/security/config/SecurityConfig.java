@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -44,37 +45,39 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
+
     @Bean
     public UserDetailsManager users() {
 
         String password = passwordEncoder().encode("1111");
 
         UserDetails user = User.builder()
-                .username( "user" )
+                .username("user")
                 .password("{noop}1111")
 //                .password( password )
-                .roles( "USER" )
+                .roles("USER")
                 .build();
 
         UserDetails manager = User.builder()
                 .username("manager")
-                .password( password )
+                .password(password)
                 .roles("MANAGER", "USER")
                 .build();
 
         UserDetails admin = User.builder()
                 .username("admin")
-                .password( password )
+                .password(password)
                 .roles("ADMIN", "MANAGER", "USER")
                 .build();
 
-        return new InMemoryUserDetailsManager( user, manager, admin );
+        return new InMemoryUserDetailsManager(user, manager, admin);
     }
 
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authConfiguration) throws Exception {
         return authConfiguration.getAuthenticationManager();
     }
+
 
     @Bean
     public CustomAuthenticationProvider customAuthenticationProvider() {
@@ -110,6 +113,7 @@ public class SecurityConfig {
 
 
         http
+                .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/", "/login*", "/users", "/user/login/**").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
@@ -134,82 +138,5 @@ public class SecurityConfig {
 
         return http.build();
 
-}
-//  {
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//
-//        return http.authorizeRequests()
-//                .anyRequest().authenticated()
-//                .and()
-//                .formLogin()
-////                .loginPage("/loginPage")
-//                .defaultSuccessUrl("/")
-//                .failureUrl("/login")
-//                .usernameParameter("userId")
-//                .passwordParameter("passwd")
-//                .loginProcessingUrl("/login_proc")
-//                .successHandler(new AuthenticationSuccessHandler() {
-//                    @Override
-//                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-//                        System.out.println("authentication " + authentication.getName());
-//                        response.sendRedirect("/");
-//                    }
-//                })
-//                .failureHandler(new AuthenticationFailureHandler() {
-//                    @Override
-//                    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-//                        System.out.println("exception " + exception);
-//                        response.sendRedirect("/login");
-//                    }
-//                })
-//                .permitAll()
-//                .and()
-////                .httpBasic()
-////                .and()
-//                .build();
-//
-//    }
-
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//
-//        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-//        authenticationManagerBuilder.inMemoryAuthentication().withUser("user").password("{noop}1111").roles("USER");
-//        authenticationManagerBuilder.inMemoryAuthentication().withUser("sys").password("{noop}1111").roles("SYS", "USER");
-//        authenticationManagerBuilder.inMemoryAuthentication().withUser("admin").password("{noop}1111").roles("ADMIN", "SYS", "USER");
-//        authenticationManager = authenticationManagerBuilder.build();
-//
-//
-//
-//        return http.authorizeRequests()
-//                .antMatchers("/user").hasRole("USER")
-//                .antMatchers("/admin/pay").hasRole("ADMIN")
-//                .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
-//                .anyRequest().authenticated()
-//                .and()
-//                .authenticationManager(authenticationManager)
-//                .formLogin()
-//                .successHandler(new AuthenticationSuccessHandler() {
-//                    @Override
-//                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-//                        HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
-//                        SavedRequest savedRequest = requestCache.getRequest(request, response);
-//                        String redirectUrl = savedRequest.getRedirectUrl();
-//                        response.sendRedirect(redirectUrl);
-//                    }
-//                })
-//                .and()
-//                .exceptionHandling()
-//                .authenticationEntryPoint(new AuthenticationEntryPoint() {
-//                    @Override
-//                    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-//                        response.sendRedirect("/login");
-//                    }
-//                })
-//                .and().build();
-//
-//    }
-
-
+    }
 }

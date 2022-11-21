@@ -3,6 +3,8 @@ package io.security.basicsecurity.security.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.security.basicsecurity.domain.AccountDTO;
 import io.security.basicsecurity.security.token.AjaxAuthenticationToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -21,6 +23,12 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
 
     public AjaxLoginProcessingFilter() {
         super(new AntPathRequestMatcher("/api/login"));
+    }
+
+    @Override
+    @Autowired
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        super.setAuthenticationManager(authenticationManager);
     }
 
     @Override
